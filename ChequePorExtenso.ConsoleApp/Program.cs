@@ -19,6 +19,25 @@ static class Program
         decimal n12 = 25961637.00m;
         decimal n13 = 425961637.00m;
         decimal n14 = 8425961637.00m;
+        decimal n15 = 0.00m;
+        decimal n16 = 0.01m;
+        decimal n17 = 1.00m;
+        decimal n18 = 1.01m;
+        decimal n19 = 10.00m;
+        decimal n20 = 11.00m;
+        decimal n21 = 19.00m;
+        decimal n22 = 20.00m;
+        decimal n23 = 21.00m;
+        decimal n24 = 100.00m;
+        decimal n25 = 101.00m;
+        decimal n26 = 110.00m;
+        decimal n27 = 115.00m;
+        decimal n28 = 999.99m;
+        decimal n29 = 1000.00m;
+        decimal n30 = 1001.00m;
+        decimal n31 = 1100.00m;
+        decimal n32 = 1000000.00m;
+        decimal n33 = 1000001.00m;
 
         Console.WriteLine(ConverterExtenso(n1));
         Console.WriteLine(ConverterExtenso(n2));
@@ -34,82 +53,82 @@ static class Program
         Console.WriteLine(ConverterExtenso(n12));
         Console.WriteLine(ConverterExtenso(n13));
         Console.WriteLine(ConverterExtenso(n14));
+        Console.WriteLine(ConverterExtenso(n15));
+        Console.WriteLine(ConverterExtenso(n16));
+        Console.WriteLine(ConverterExtenso(n17));
+        Console.WriteLine(ConverterExtenso(n18));
+        Console.WriteLine(ConverterExtenso(n19));
+        Console.WriteLine(ConverterExtenso(n20));
+        Console.WriteLine(ConverterExtenso(n21));
+        Console.WriteLine(ConverterExtenso(n22));
+        Console.WriteLine(ConverterExtenso(n23));
+        Console.WriteLine(ConverterExtenso(n24));
+        Console.WriteLine(ConverterExtenso(n25));
+        Console.WriteLine(ConverterExtenso(n26));
+        Console.WriteLine(ConverterExtenso(n27));
+        Console.WriteLine(ConverterExtenso(n28));
+        Console.WriteLine(ConverterExtenso(n29));
+        Console.WriteLine(ConverterExtenso(n30));
+        Console.WriteLine(ConverterExtenso(n31));
+        Console.WriteLine(ConverterExtenso(n32));
+        Console.WriteLine(ConverterExtenso(n33));
         Console.ReadLine();
     }
     static string ConverterExtenso(decimal numero)
     {
+        if (numero == 0.00m)
+            return "pobre";
+
         decimal parteInteira = Math.Truncate(numero);
         decimal reais = parteInteira;
         int centavos = Convert.ToInt32((numero - parteInteira) * 100);
 
-        string resultado = "";
+        List<string> resultado = [];
 
-        decimal mil = 1_000;
-        decimal milhao = 1_000_000;
-        decimal bilhao = 1_000_000_000;
-        decimal trilhao = 1_000_000_000_000;
-        decimal quadrilhao = 1_000_000_000_000_000;
-
-        if (reais / quadrilhao >= 1)
+        foreach ((decimal escala, NomeEscala palavra) in escalas)
         {
-            decimal quantidade = Math.Truncate(reais / quadrilhao);
-            resultado += $"{ConverterCentena((int)quantidade)} {(quantidade > 1 ? "quadrilhões" : "quadrilhão")} ";
-            reais %= quadrilhao;
-        }
+            decimal quantidade = Math.Truncate(reais / escala);
 
-        if (reais / trilhao >= 1)
-        {
-            decimal quantidade = Math.Truncate(reais / trilhao);
-            resultado += $"{ConverterCentena((int)quantidade)} {(quantidade > 1 ? "trilhões" : "trilhão")} ";
-            reais %= trilhao;
-        }
+            if (quantidade < 1)
+                continue;
 
-        if (reais / bilhao >= 1)
-        {
-            decimal quantidade = Math.Truncate(reais / bilhao);
-            resultado += $"{ConverterCentena((int)quantidade)} {(quantidade > 1 ? "bilhões" : "bilhão")} ";
-            reais %= bilhao;
-        }
+            if (escala != 1_000)
+            {
+                resultado.Add($"{ConverterGrupo((int)quantidade)} {(quantidade > 1 ? palavra.Plural : palavra.Singular)}");
+            }
+            else
+            {
+                string textoMilhares = quantidade == 1 ? palavra.Singular : $"{ConverterGrupo((int)quantidade)} {palavra.Plural}";
+                resultado.Add(textoMilhares);
+            }
 
-        if (reais / milhao >= 1)
-        {
-            decimal quantidade = Math.Truncate(reais / milhao);
-            resultado += $"{ConverterCentena((int)quantidade)} {(quantidade > 1 ? "milhões" : "milhão")} ";
-            reais %= milhao;
-        }
-
-        if (reais / mil >= 1)
-        {
-            decimal quantidade = Math.Truncate(reais / mil);
-            string textoMilhares = quantidade == 1 ? "mil" : $"{ConverterCentena((int)quantidade)} mil";
-            resultado += textoMilhares + " ";
-            reais %= mil;
+            reais %= escala;
         }
 
         if (reais > 0)
         {
             bool terminaEmCentenaRedonda = reais % 100 == 0;
-            string conjuncao = (!string.IsNullOrEmpty(resultado) && terminaEmCentenaRedonda) ? "e " : string.Empty;
-            resultado += $"{conjuncao}{ConverterCentena((int)reais)} ";
+            string conjuncao = (resultado.Count > 0 && terminaEmCentenaRedonda) ? "e " : string.Empty;
+            resultado.Add($"{conjuncao}{ConverterGrupo((int)reais)}");
         }
 
         if (centavos > 0)
         {
             bool temParteEmReais = parteInteira > 0;
-            bool reaisNoPlural = parteInteira > 1;
+            string realPalavra = parteInteira > 1 ? "reais e " : "real e ";
 
-            string sufixoReais = temParteEmReais ? (reaisNoPlural ? "reais e " : "real e ") : string.Empty;
+            string sufixoReais = temParteEmReais ? realPalavra : string.Empty;
 
             string sufixoCentavos = centavos > 1 ? "centavos" : "centavo";
 
             string sufixoMoeda = temParteEmReais ? string.Empty : " de real";
 
-            resultado += $"{sufixoReais}{ConverterDezena(centavos)} {sufixoCentavos}{sufixoMoeda}";
+            resultado.Add($"{sufixoReais}{ConverterDezena(centavos)} {sufixoCentavos}{sufixoMoeda}");
         }
         else
-            resultado += parteInteira > 1 ? "reais" : "real";
+            resultado.Add(parteInteira > 1 ? "reais" : "real");
 
-        return resultado.Trim();
+        return string.Join(" ", resultado);
     }
 
     static string ConverterUnidade(int numero)
@@ -134,7 +153,7 @@ static class Program
         return $"{dezena} e {unidade}";
     }
 
-    static string ConverterCentena(int numero)
+    static string ConverterGrupo(int numero)
     {
         if (numero == 100)
             return excecoes[numero];
@@ -170,7 +189,7 @@ static class Program
         { 0, string.Empty },
         { 1, "um" },
         { 2, "dois" },
-        { 3, "tres" },
+        { 3, "três" },
         { 4, "quatro" },
         { 5, "cinco" },
         { 6, "seis" },
@@ -206,4 +225,15 @@ static class Program
         { 8, "oitocentos" },
         { 9, "novecentos" },
     };
+
+    static readonly Escala[] escalas =
+    [
+        new(1_000_000_000_000_000, new NomeEscala("quadrilhão", "quadrilhões")),
+        new(1_000_000_000_000, new NomeEscala("trilhão", "trilhões")),
+        new(1_000_000_000, new NomeEscala("bilhão", "bilhões")),
+        new(1_000_000, new NomeEscala("milhão", "milhões")),
+        new(1_000, new NomeEscala("mil", "mil"))
+    ];
 }
+record NomeEscala(string Singular, string Plural);
+record Escala(decimal Valor, NomeEscala Palavra);
